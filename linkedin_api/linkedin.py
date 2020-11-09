@@ -1128,3 +1128,43 @@ class Linkedin(object):
             err = True
 
         return err
+
+    def accept_connection_request(self, urn_id):
+        payload = {"inviterProfileId": f"{urn_id}"}
+        res = self._post(
+            f"/relationships/invitations/{urn_id}?action=acceptByInvitee",
+            headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
+            data=json.dumps(payload)
+        )
+        return res
+
+    def sent_connection_request(self,urn_id,message):
+        """
+        sent connection request
+
+        :param urn_id: URN ID of entity to send connection request
+        :type urn_id: str
+        :param message: message to sent with connection request
+        :type message: str
+        :param trackingId: linkedin generate trackingId  with js function from
+                            array of 16 length i don't know how that work.
+        :type message: str
+        :return: Error state. Returns True if error occurred
+        :rtype: boolean
+
+        """
+        payload = {
+            "emberEntityName": "growth/invitation/norm-invitation",
+            "invitee": {"com.linkedin.voyager.growth.invitation.InviteeProfile":
+                            {"profileId": f"{urn_id}"}},
+            "message": f"{message}",
+            "trackingId": "OHT30U4zReyorvFK3NNUKQ==",
+        }
+
+        res = self._post('/growth/normInvitations',
+                         data=json.dumps(payload),
+                         headers={"accept": "application/vnd.linkedin.normalized+json+2.1",
+                                  },
+                         )
+
+        return res.status_code != 201
